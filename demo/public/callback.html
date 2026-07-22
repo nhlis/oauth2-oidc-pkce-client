@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Completing sign-in…</title>
+<style>
+  body {
+    margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #0F1115; color: #9198A6; font-family: -apple-system, Segoe UI, sans-serif; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  Completing sign-in…
+  <script type="module">
+    import { handleOAuth2PopupCallback } from '/dist/callback.js';
+    handleOAuth2PopupCallback();
+  </script>
+</body>
+</html>

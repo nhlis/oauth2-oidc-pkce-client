@@ -1,0 +1,9 @@
+export const DEFAULT_POPUP_WIDTH = 480;
+export const DEFAULT_POPUP_HEIGHT = 640;
+export const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+export const POPUP_POLL_INTERVAL_MS = 300;
+export const CODE_VERIFIER_BYTE_LENGTH = 32;
+export const STATE_BYTE_LENGTH = 16;
+export const NONCE_BYTE_LENGTH = 16;
+export const POPUP_WINDOW_NAME = 'idp_oauth2_popup';
+export const PENDING_FLOW_STORAGE_PREFIX = 'idp_oauth2_pending:';

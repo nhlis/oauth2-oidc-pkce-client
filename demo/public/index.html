@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>oauth2-oidc-pkce-client — local demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0F1115;
+    --surface: #181B21;
+    --surface-2: #1F232B;
+    --border: #2A2E37;
+    --text: #EDEEF0;
+    --text-dim: #9198A6;
+    --accent: #E8A33D;
+    --accent-dim: #4A3C1F;
+    --success: #6FCF97;
+    --error: #E8654A;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    padding: 40px 20px 80px;
+  }
+  h1, h2, .display { font-family: 'Space Grotesk', -apple-system, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  header { margin-bottom: 28px; }
+  .eyebrow { color: var(--accent); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+  h1 { font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .lede { color: var(--text-dim); font-size: 14px; line-height: 1.6; max-width: 640px; }
+  .topology { display: flex; gap: 10px; align-items: center; margin-top: 18px; font-size: 12px; }
+  .origin-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 6px 12px; display: inline-flex; gap: 8px; align-items: center; }
+  .origin-chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .origin-chip.app .dot { background: var(--accent); }
+  .origin-chip.idp .dot { background: #6B8CFF; }
+  .arrow { color: var(--text-dim); }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin: 0 0 16px; font-weight: 600; }
+
+  .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 13px; }
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+  .status-dot.busy { background: var(--accent); animation: pulse 1.1s ease-in-out infinite; }
+  .status-dot.ok { background: var(--success); }
+  .status-dot.err { background: var(--error); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+  button {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px;
+    padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer;
+    background: var(--surface-2); color: var(--text); transition: border-color 0.15s, background 0.15s;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #1A1400; }
+  button.primary:hover:not(:disabled) { background: #F0B25C; }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  dl.claims { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; font-size: 13px; margin: 0; }
+  dl.claims dt { color: var(--text-dim); }
+  dl.claims dd { margin: 0; word-break: break-all; }
+  .empty-hint { color: var(--text-dim); font-size: 13px; }
+
+  .token-block { font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; word-break: break-all; }
+  .token-block .label { color: var(--text-dim); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  #log { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+  .log-entry { border-left: 2px solid var(--border); padding: 4px 0 4px 12px; font-size: 12.5px; }
+  .log-entry.ok { border-color: var(--success); }
+  .log-entry.err { border-color: var(--error); }
+  .log-entry .t { color: var(--text-dim); margin-right: 8px; }
+  .log-entry pre { margin: 6px 0 0; white-space: pre-wrap; word-break: break-all; color: var(--text-dim); font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">oauth2-oidc-pkce-client</div>
+    <h1>Local demo</h1>
+    <p class="lede">
+      A real (mock) identity provider running on its own origin, and a small app on this origin using the built package
+      to sign in against it — real PKCE verification, real nonce validation, nothing faked except the identity data.
+    </p>
+    <div class="topology">
+      <span class="origin-chip app"><span class="dot"></span>this app — localhost:4000</span>
+      <span class="arrow">⇄</span>
+      <span class="origin-chip idp"><span class="dot"></span>mock IdP — localhost:4001</span>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>Session</h2>
+    <div class="status-row">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Signed out</span>
+    </div>
+    <div class="buttons">
+      <button class="primary" id="btn-popup">Sign in (popup)</button>
+      <button id="btn-redirect">Sign in (redirect)</button>
+      <button id="btn-userinfo" disabled>Get user info</button>
+      <button id="btn-refresh" disabled>Refresh token</button>
+      <button id="btn-signout" disabled>Sign out (revoke)</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>id_token claims (decoded, validated)</h2>
+    <div id="claims-empty" class="empty-hint">Sign in to see this filled in.</div>
+    <dl class="claims" id="claims" style="display:none"></dl>
+  </section>
+
+  <section class="panel">
+    <h2>Raw tokens</h2>
+    <div id="tokens-empty" class="empty-hint">Sign in to see this filled in.</div>
+    <div id="tokens" style="display:none"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Event log</h2>
+    <div id="log"></div>
+  </section>
+</div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

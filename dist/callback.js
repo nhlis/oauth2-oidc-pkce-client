@@ -1,0 +1,2 @@
+import{a as o}from"./chunk-XFSVXGSI.js";function a(){if(!window.opener)return;let e=new URLSearchParams(window.location.search),r={source:o,state:e.get("state"),code:e.get("code")??void 0,error:e.get("error")??void 0,error_description:e.get("error_description")??void 0};window.opener.postMessage(r,window.location.origin)}export{a as handleOAuth2PopupCallback};
+//# sourceMappingURL=callback.js.map
